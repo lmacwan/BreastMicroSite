@@ -1,0 +1,19 @@
+﻿@inherits Umbraco.Web.Mvc.UmbracoViewPage<IPublishedContent>
+@{
+    
+    var IsInheritable = Model.DocumentTypeAlias.ToLower() != "text";
+    var content = string.Format("<p>{0}</p>",
+                        Model.GetPropertyValue<string>("text")
+                                     .Replace('\n' + "", "</p><p>"));    
+}
+<article>
+    <div class="typography">
+        <h3>
+            @Model.GetPropertyValue("heading")
+        </h3>
+        <p>
+            <img src="@Model.GetCropUrl("photo", "portrait")" alt="@Model.GetPropertyValue("heading")" width="100%"/>
+        </p>
+        @Html.Raw(content)
+    </div>
+</article>

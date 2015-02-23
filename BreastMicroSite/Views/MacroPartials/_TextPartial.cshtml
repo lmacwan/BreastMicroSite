@@ -1,0 +1,14 @@
+﻿@model IPublishedContent
+@{
+    
+    var IsInheritable = Model.DocumentTypeAlias.ToLower() != "text";
+    var content = Model.GetPropertyValue<string>("text");
+}
+<article>
+    <div class="typography">
+        <h3>
+            @Model.GetPropertyValue("heading")
+        </h3>
+        @Html.Raw(content)
+    </div>
+</article>

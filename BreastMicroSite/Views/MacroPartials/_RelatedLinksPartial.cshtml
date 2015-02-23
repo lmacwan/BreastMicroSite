@@ -1,0 +1,46 @@
+﻿@inherits Umbraco.Web.Mvc.UmbracoViewPage<IPublishedContent>
+
+<!-- help -->
+<section id="relatedLinksSection" class="widget doctors-carousel doctors">
+    @if (Model.Children(c => c.DocumentTypeAlias == "Link" && c.IsVisible()).Count() > 0)
+    {
+        <div class="widget-title">Similar Treatments</div>
+
+        <div id="help-carousel" class="owl-carousel">
+            @foreach (IPublishedContent child in Model.Children(c => c.DocumentTypeAlias == "Link"))
+            {
+                <div>
+                    <ul>
+                        @RenderChildren(child)
+                    </ul>
+                </div>
+            }
+        </div>
+    }
+</section>
+<!--/ help -->
+@helper RenderChildren(IPublishedContent child)
+{
+    if (child.HasValue("relatedPage"))
+    {
+        var element = Umbraco.TypedContent(child.GetPropertyValue<int>("relatedPage"));
+
+        var heading = element.GetPropertyValue<string>("heading");
+        var linkedContent = Umbraco.TypedContent(uQuery.GetNodeByUrl("/data" + element.Url).Id);
+        if (linkedContent != null)
+        {
+            <li class="item">
+                <div class="pic">
+                    <img src="@linkedContent.GetCropUrl("thumbnail", "thumb")" width="142" height="142" alt="@heading">
+                    <div class="links">
+                        <ul>
+                            <li><a href="@element.Url" class="fa fa-mail-forward"></a></li>
+                        </ul>
+                    </div>
+                </div>
+                <h3>@heading</h3>
+                <p></p>
+            </li>
+        }
+    }
+}

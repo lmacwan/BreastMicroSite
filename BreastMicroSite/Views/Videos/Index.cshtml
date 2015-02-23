@@ -1,0 +1,29 @@
+﻿@inherits Umbraco.Web.Mvc.UmbracoViewPage<Umbraco.Web.Models.RenderModel>
+@{
+    Layout = "/Views/Shared/_Layout.cshtml";
+    var videosData = uQuery.GetNodesByType("VideoData");
+}
+
+<section class="widget photo-tour photo-tour-3" id="photo-tour">
+    @if (videosData.Any())
+    {
+        <div class="grid isotope">
+            @foreach (umbraco.NodeFactory.Node videoCategory in videosData.First().ChildrenAsList.WhereNotNull())
+            {
+                var url = string.Format("{0}{1}{2}", Request.RawUrl, (Request.RawUrl.EndsWith("/") ? string.Empty : "/"), videoCategory.UrlName);
+                <div class="item item2 isotope-item" style="position: absolute; left: 0px; top: 0px; transform: translate(0px, 0px);">
+                    <div class="pic">
+                        <img src="@Umbraco.TypedContent(videoCategory.Id).GetCropUrl("thumbnail", "thumb")" alt="@videoCategory.GetProperty("heading")" />
+                        <div class="links">
+                            <ul>
+                                <li><a href="@url" class="fa fa-mail-forward"></a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <h3>@videoCategory.GetProperty("heading")</h3>
+                    <p></p>
+                </div>
+            }
+        </div>
+    }
+</section>

@@ -1,0 +1,10 @@
+﻿@using Umbraco.Core.Models
+@inherits Umbraco.Web.Mvc.UmbracoViewPage<Umbraco.Web.Models.RenderModel>
+@{
+    Layout = "/Views/Shared/_Layout.cshtml";
+    ViewBag.ShowTitleBar = false;
+    var rightChoiceData = uQuery.GetNodesByType("RightChoiceData") ?? new List<umbraco.NodeFactory.Node>();
+    ViewBag.Crop = "Rectangular";
+}
+<link href="~/Content/css/right-choice.css" rel="stylesheet" />
+@Html.Partial("_TextContent", rightChoiceData)

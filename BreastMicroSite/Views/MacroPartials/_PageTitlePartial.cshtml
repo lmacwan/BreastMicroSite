@@ -1,0 +1,45 @@
+﻿@inherits Umbraco.Web.Mvc.UmbracoViewPage<IPublishedContent>
+@{
+    var breadcrumbs = ((List<PurityBridge.Live.BreadCrumbElement>)ViewBag.BreadCrumbs);
+}
+
+<!-- page title -->
+@if (!(Model.Name.ToString().Equals("home", StringComparison.InvariantCultureIgnoreCase)))
+{
+    @RenderBreadCrumbs(breadcrumbs);
+}
+<!--/ page title -->
+
+@helper RenderBreadCrumbs(List<PurityBridge.Live.BreadCrumbElement> breadcrumb)
+{
+    if (Request.RawUrl.Contains("construction"))
+    {
+    <section class="page-title">
+        <div class="grid-row clearfix">
+            <h1>Under Construction</h1>
+        </div>
+    </section>
+    }
+    else if (breadcrumb != null)
+    {
+        var lastCrumb = breadcrumb.Last();
+        breadcrumb.Remove(lastCrumb);
+        
+    <section class="page-title">
+        <div class="grid-row clearfix">
+            <h1>@lastCrumb.Name</h1>
+            <nav class="bread-crumbs">
+                <a href="/">Home </a><span>&nbsp;</span>
+                @foreach (var node in breadcrumb)
+                {
+                    <i class="fa fa-angle-right"></i><span>&nbsp;</span>
+                    <a href="@node.Value">@node.Name</a>
+                    <span>&nbsp;</span>
+                }
+                <i class="fa fa-angle-right"></i><span>&nbsp;</span>
+                @lastCrumb.Name
+            </nav>
+        </div>
+    </section>
+    }
+}

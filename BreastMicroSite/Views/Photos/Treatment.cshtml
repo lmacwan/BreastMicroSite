@@ -1,0 +1,23 @@
+﻿@using Umbraco.Core.Models
+@inherits Umbraco.Web.Mvc.UmbracoViewPage<Umbraco.Web.Models.RenderModel>
+@{
+    Layout = "/Views/Shared/_Layout.cshtml";
+    ViewBag.ShowTitleBar = false;
+    var currentUrlName = Request.RawUrl.Split(new string[] { "/" }, StringSplitOptions.RemoveEmptyEntries).Last();
+    var treatmentsNodes = uQuery.GetNodesByType("TreatmentsData").First().GetDescendantNodesByType("TreatmentData").Where(d => d.UrlName == currentUrlName);
+}
+<link href="~/Content/css/beforeafter.css" rel="stylesheet" />
+@if (treatmentsNodes.Any())
+{
+    var treatmentContent = Umbraco.TypedContent(treatmentsNodes.First().Id);
+    <section class="widget photo-tour photo-tour-3" id="photo-tour">
+        <div class="grid isotope">
+            @foreach (IPublishedContent item in treatmentContent.Children(c => c.DocumentTypeAlias == "photo").FirstOrDefault().Children)
+            {
+                <a class="fancybox" id="@item.Id" href="javascript:getPhoto(@item.Id)">
+                    @Html.Partial("BeforeAndAfterPartial", item)
+                </a>
+            }
+        </div>
+    </section>
+}

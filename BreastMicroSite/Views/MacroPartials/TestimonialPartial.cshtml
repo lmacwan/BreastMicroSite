@@ -1,0 +1,15 @@
+﻿@model IPublishedContent
+@{
+    var cols = 12;
+    string spanNo;
+
+    
+    spanNo = "vc_span" + cols;
+
+    <div class="widget testimonial @spanNo">
+        <div class="clearfix">
+            <p>@Model.GetPropertyValue("Content")</p>
+        </div>
+        <div class="author">@Model.GetPropertyValue("Author")</div>
+    </div>
+}

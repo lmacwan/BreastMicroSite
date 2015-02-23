@@ -1,0 +1,35 @@
+﻿@inherits Umbraco.Web.Mvc.UmbracoViewPage<Umbraco.Web.Models.RenderModel>
+@{
+    Layout = "/Views/Shared/_Layout.cshtml";
+    ViewBag.ShowTitleBar = false;
+    var teamData = uQuery.GetNodesByType("Conditionswetreatdata") ?? new List<umbraco.NodeFactory.Node>();
+}
+<style>
+    .spannedItems .capitalized:first-letter {
+        color: #fff;
+        display: block;
+        float: left;
+        font-size: 28px;
+        height: 32px;
+        line-height: 32px;
+        margin: 5px 10px 0 0;
+        text-align: center;
+        width: 32px;
+    }
+
+    .spannedItems .wpb_content_element {
+        overflow: hidden;
+        padding-top: 20px;
+    }
+
+    .spannedItems section .wpb_content_element {
+        border-right: 2px solid #00aba5;
+    }
+
+    /* 1024 */
+    .nb1024 .align {
+        width: 230px;
+        height: 134px;
+    }
+</style>
+@Html.Partial("_PhotoTextContent", teamData)

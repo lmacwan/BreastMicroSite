@@ -1,0 +1,94 @@
+﻿@inherits Umbraco.Web.Mvc.UmbracoViewPage<IPublishedContent>
+@{
+    var isHomePage = Model.Name.Equals("home", StringComparison.CurrentCultureIgnoreCase);
+    var navigationItems = uQuery.GetNodesByType("ContentItem");
+}
+
+@if (navigationItems.Any())
+{
+    var url = "#";
+    var hasChildren = false;
+    var showOnRight = string.Empty;
+    foreach (umbraco.NodeFactory.Node topLevelNavigation in navigationItems.First().ChildrenAsList.Where(c => c.GetProperty<bool>("showInHeader")))
+    {
+
+        if (topLevelNavigation.UrlName.Contains("home"))
+        {
+            url = "/";
+        }
+        else
+        {
+            url = topLevelNavigation
+                    .GetProperty<bool>("isPageUnderConstruction")
+                        ? "/under-construction"
+                        : topLevelNavigation.Url;
+
+            hasChildren = topLevelNavigation.Children.Count > 0;
+            showOnRight = (hasChildren &&
+                                topLevelNavigation.GetPrecedingSiblingNodes().Count() >= topLevelNavigation.GetSiblingNodes().Count() / 2)
+                                            ? "class=right"
+                                            : "";
+        }
+        if (isHomePage && !(topLevelNavigation.GetProperty<bool>("isVisibleOnHomePage")))
+        {
+            continue;
+        }
+        if (topLevelNavigation.GetProperty<bool>("isNotClickable"))
+        {
+            url = "#";
+        }
+        <li @showOnRight>
+            @*<li class="right">*@
+            <a href="@url">
+                @if (hasChildren)
+                {
+                    <i class="fa fa-plus"></i>
+                }
+                @topLevelNavigation.GetProperty("heading")
+            </a>
+            @if (hasChildren)
+            {
+                @childPages(topLevelNavigation.Children)
+            }
+        </li>
+    }
+    var blogNode = uQuery.GetNodesByType("SmartBlogBlog");
+    if (blogNode.Any())
+    {
+        <li>
+            <a href="@blogNode.First().Url">
+                @blogNode.First().GetProperty("smartBlogTitle")
+            </a>
+        </li>
+
+    }
+}
+
+@helper childPages(umbraco.NodeFactory.Nodes pages)
+{
+    var url = "#";
+    var hasChildren = false;
+    <ul>
+        @foreach (umbraco.NodeFactory.Node page in pages)
+        {
+            url = page.GetProperty<bool>("isPageUnderConstruction") ? "/under-construction" : page.Url;
+            if (page.GetProperty<bool>("showInHeader"))
+            {
+                hasChildren = page.GetChildNodes().Where(c => c.GetProperty<bool>("showInHeader")).Count() > 0;
+                <li>
+                    <a href="@url">
+                        @if (hasChildren)
+                        {
+                            <i class="fa fa-angle-right"></i>
+                        }
+                        @page.GetProperty("heading")
+                    </a>
+                    @if (hasChildren)
+                    {
+                        @childPages(page.Children)
+                    }
+                </li>
+            }
+        }
+    </ul>
+}

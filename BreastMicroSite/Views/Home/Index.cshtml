@@ -1,0 +1,148 @@
+﻿@using Umbraco.Core.Models
+@inherits Umbraco.Web.Mvc.UmbracoViewPage<Umbraco.Web.Models.RenderModel>
+@{
+    Layout = "/Views/Shared/_Layout.cshtml";
+    ViewBag.ShowTitleBar = false;
+    var homeData = uQuery.GetNodesByType("HomeData");
+}
+<link href="~/Content/css/home.css" rel="stylesheet" />
+@if (homeData.Any())
+{
+    var highlights = homeData.First().ChildrenAsList.Where(data => data.NodeTypeAlias == "Highlights");
+    if (highlights.Any())
+    {
+        //var highlightsContent = Umbraco.TypedContent(highlights.First().Id);
+        @section HighlightsSection {
+            @Html.Partial("_HighlightsPartial", highlights.First())
+        }
+    }
+
+    var featured = homeData.First().ChildrenAsList.Where(data => data.NodeTypeAlias == "Featured");
+    if (featured.Any())
+    {
+        //var featuredContent = Umbraco.TypedContent(featured.First().Id);
+        @section FeaturedSection {
+            @Html.Partial("_FeaturesPartial", featured.First())
+        }
+    }
+
+    @*if (Request.RawUrl.Contains("home1"))
+        {
+            <div class="grid-row">
+                <div class="vc_row-fluid beautify">
+                    @Html.Partial("_ContentPartial", Umbraco.TypedContent(homeData.First().Id).Children().FirstOrDefault(c => c.DocumentTypeAlias.Equals("index", StringComparison.InvariantCultureIgnoreCase) && c.IsVisible()))
+                </div>
+
+                <div class="vc_row-fluid beautify">
+                    @Html.Partial("_ContentPartial", Umbraco.TypedContent(homeData.First().Id).Children().FirstOrDefault(c => c.DocumentTypeAlias.Equals("Testimonials", StringComparison.InvariantCultureIgnoreCase) && c.IsVisible()))
+                </div>
+            </div>
+        }
+        else
+        {*@
+
+
+    var homeDataIndex = homeData.First().GetChildNodesByType("HomeSliderContent").First();
+    var rows = homeDataIndex.GetChildNodes();
+    if (rows.Any())
+    {
+
+        var classActive = "active";
+        var classVisible = "visible";
+        <div class="comments clearfix" style="position:relative; overflow:hidden;">
+            <div style='position: absolute;'>
+                <div class="mask">
+                    <div class="mask-wrapper">
+
+                    </div>
+                </div>
+            </div>
+            <div class="grid-row">
+
+                <div class="tab">
+                    @foreach (var column in rows)
+                    {
+                        <div class="box @classVisible">
+                            @{
+                        classVisible = "";
+                            }
+                            <h4>@column.GetProperty("heading")</h4>
+                            <p>@Html.Raw(column.GetProperty("text").Value.ToString())</p>
+                            <img src="@Umbraco.TypedContent(column.Id).GetCropUrl("photo", "home")" class="img-hide">
+                            @*  <img src="~/Content/pic/medical-slide-1.jpg" class="img-hide">*@
+                        </div>
+                    }
+                    <ul class="tabs">
+                        @foreach (var column in rows)
+                        {
+                            <li class="@classActive">
+                                @{
+                            classActive = "";
+                                }
+                            </li>
+                        }
+                    </ul>
+                    <a class="tab-prev" href="#"></a>
+                    <a class="tab-next" href="#"></a>
+                </div>
+            </div>
+        </div>
+    }
+    var homeDataTreatements = homeData.First().GetChildNodesByType("HomeTreatmentContent").First();
+    var treatmentRows = homeDataTreatements.GetChildNodes();
+
+    <div class="treatments clearfix">
+        <div class="grid-row">
+            <div class="newsletter-title">
+                @homeDataTreatements.GetProperty("heading")
+            </div>
+        </div>
+        <div class="grid-row">
+            @foreach (var treatmentCategory in uQuery.GetNodesByType("TreatmentsData").First().GetDescendantNodesByType("TreatmentsCategoryData"))
+            {
+                var url = "/treatments/" + treatmentCategory.UrlName;
+                umbraco.NodeFactory.Node matchedNode = uQuery.GetNodeByUrl(url);
+                <div class="grid-col grid-col-3">
+                    <div class="treatments-wrap">
+                        <img class="treatment-image" src="@Umbraco.TypedContent(treatmentCategory.Id).GetCropUrl("thumbnail", "thumb")" alt="@matchedNode.GetProperty("heading") " />
+                        <a href="@url" class="treatment-link"> <div class="treatment-heading">@matchedNode.GetProperty("heading") </div></a>
+                    </div>
+                </div>
+            }
+        </div>
+        @if (treatmentRows.Any())
+        {
+            <div class="grid-row">
+                <div class="treatment-text">
+                    @{
+            var htmlText = treatmentRows.First().GetProperty("text").Value;
+            htmlText = string.Format("{0}", htmlText.ToString().Replace('\n' + "", "</p><p>"));
+                    }
+                    @Html.Raw(htmlText)
+                </div>
+            </div>
+        }
+    </div>
+
+    var subscribeUrl = "/umbraco/surface/subscription/SubscribeNewsletter/";
+    <div class="newsletter clearfix">
+        <div class="wrap">
+            <div class="newsletter-title">@homeData.First().GetProperty("newsletterHeading").Value</div>
+            <div class="newsletter-form clearfix">
+                <form method="post" action="@subscribeUrl">
+                    <input type="email" class="input-text" placeholder="Your email">
+                    <input type="button" value="Subscribe" class="button submit" onclick="subscribeNewsLetter()">
+                </form>
+            </div>
+            <p class="subscription-msg"></p>
+            <p> @homeData.First().GetProperty("emailInformation").Value</p>
+            <div style="display:none" id="email-procssing">@homeData.First().GetProperty("emailProcessingMessage").Value </div>
+            <div style="display:none" id="email-procssing-success">@homeData.First().GetProperty("emailProcessingSuccessMessage").Value </div>
+            <div style="display:none" id="email-procssing-error">@homeData.First().GetProperty("emailSubscriptionError").Value </div>
+        </div>
+    </div>
+}
+@section Scripts {
+    <script src="~/scripts/library.js"></script>
+    <script src="~/scripts/spascript.js"></script>
+}

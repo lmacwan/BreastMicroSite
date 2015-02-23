@@ -1,0 +1,110 @@
+﻿@inherits Umbraco.Web.Mvc.UmbracoTemplatePage
+@{
+    Layout = "/Views/Shared/_Layout.cshtml";
+    var email = "marc@pacifico.co.uk";
+}
+@section styles {
+    <link href="~/Content/css/location.css" rel="stylesheet" />
+}
+@{
+    var pageData = Umbraco.TypedContent(uQuery.GetNodesByType("ContactData").First().Id);
+}
+<!-- feedback -->
+<div class="newsletter">
+    <div class="grid-row">
+        <div class="grid-col grid-col-9">
+            <!-- map -->
+            <section class="map">
+                <div class="widget-title">@pageData.GetPropertyValue("mapHeading")</div>
+                <div id="map" class="google-map"></div>
+            </section>
+            <!--/ map -->
+
+            <div class="newsletter-title">@pageData.GetPropertyValue("inquiryFormHeading")</div>
+            <div class="newsletter-form clearfix">
+                <form action="">
+                    <div class="vc_row-fluid">
+                        <input id="inquiry-form-name" type="text" class="input-text vc_span6" placeholder="Your name">
+                        <input id="inquiry-form-email" type="email" class="input-text vc_span6" placeholder="Your email">
+                    </div>
+                    <div class="vc_row-fluid">
+                        <input id="inquiry-form-message" type="text" class="input-text textarea vc_span12" placeholder="Message">
+                    </div>
+                    <div class="vc_row-fluid">
+                        <input type="button" value="Submit" onclick="sendContactUsEmail()" class="button right">
+                    </div>
+                </form>
+                <p></p>
+            </div>
+        </div>
+        @{
+            var masterConfigurations = Umbraco.TypedContent(uQuery.GetNodesByType("MasterConfigurations").First().Id);
+            var addrress = masterConfigurations.GetPropertyValue("address").ToString();
+        }
+        <div class="grid-col grid-col-3 contact-details-sidebar">
+            <section class="widget">
+                <div class="widget-title">@pageData.GetPropertyValue("contactDetailsHeading")</div>
+                <div>
+                    <ul>
+                        <li>
+                            <i class="fa fa-map-marker"></i>
+                            <ul class="indent">
+                                @Html.Raw(addrress)
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </section>
+            <section class="widget">
+                <div>
+                    <ul>
+                        <li>
+                            <i class="fa fa-phone"></i>
+                            <ul class="indent">
+                                <li>@masterConfigurations.GetPropertyValue("phoneNumber")</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </section>
+            <section class="widget">
+                <div>
+                    <ul>
+                        <li>
+                            <i class="fa fa-envelope"></i>
+                            <ul class="indent">
+                                <li> @masterConfigurations.GetPropertyValue("emailAddress")</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </section>
+
+
+            <section class="openining-hours widget">
+                <div class="widget-title">Opening Hours</div>
+                <section class="widget-alt work-time">
+                    <div class="widget-icon"></div>
+                    <dl>
+                        @foreach (var weekDay in pageData.Descendants().Where(c => c.DocumentTypeAlias == "WeekDay"))
+                        {
+                            <dt>@weekDay.Name.ToString().Substring(0, 3)</dt>
+                            if (weekDay.GetPropertyValue<bool>("isFreeDay") || string.IsNullOrEmpty(weekDay.GetPropertyValue("openingTime").ToString()))
+                            {
+                                <dd>Clinic Closed</dd>
+                            }
+                            else
+                            {
+                                <dd>@weekDay.GetPropertyValue("openingTime").ToString().Replace("am", " am").Replace("AM", " am").Replace("pm", " pm").Replace("PM", " pm") - @weekDay.GetPropertyValue("closingTime").ToString().Replace("am", " am").Replace("AM", " am").Replace("pm", " pm").Replace("PM", " pm")</dd>
+                            }
+                        }
+                    </dl>
+                </section>
+            </section>
+        </div>
+        <!--/ feedback -->
+    </div>
+</div>
+@section scripts {
+    <script src="~/scripts/Common.js"></script>
+}

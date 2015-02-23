@@ -1,0 +1,49 @@
+﻿@inherits Umbraco.Web.Mvc.UmbracoViewPage<IEnumerable<umbraco.NodeFactory.Node>>
+@if (Model.WhereNotNull().Any())
+{
+    var rightChoice = Umbraco.TypedContent(Model.First().Id);
+    string content = string.Empty;
+    var contentItems = rightChoice.Children(c => c.DocumentTypeAlias == "SpannedPhotoItem");
+    int half = Convert.ToInt16(Math.Ceiling(contentItems.Count() / 2.0));
+    var crop = (string)(ViewBag.Crop ?? string.Empty);
+    <div class="vc_row-fluid spannedItems">
+        <div class="vc_span6">
+            @foreach (var spannedPhotoItem in contentItems.Take(half))
+            {
+                content = string.Format("<h1></h1><p class='capitalized'>{0}</p>",
+                            spannedPhotoItem.GetPropertyValue<string>("text")
+                                            .Replace('\n' + "", "</p><h1></h1><p>").Replace("<<.>>", "<i class='fa fa-circle'>  </i>"));
+                <section class="widget right">
+                    <div class="widget-title">
+                        @spannedPhotoItem.GetPropertyValue("heading")
+                    </div>
+                    <div class="wpb_text_column wpb_content_element">
+                        <div class="wpb_wrapper">
+                            <img src="@spannedPhotoItem.GetCropUrl("spannedPhotoItem", crop)" alt="@spannedPhotoItem.GetPropertyValue("heading")" class="align"/>
+                        </div>
+                        @Html.Raw(content)
+                    </div>
+                </section>
+            }
+        </div>
+        <div class="vc_span6">
+            @foreach (var spannedPhotoItem in contentItems.Skip(half))
+            {
+                content = string.Format("<h1></h1><p class='capitalized'>{0}</p>",
+                            spannedPhotoItem.GetPropertyValue<string>("text")
+                                            .Replace('\n' + "", "</p><h1></h1><p>").Replace("<<.>>", "<i class='fa fa-circle'>  </i>"));
+                <section class="widget left">
+                    <div class="widget-title">
+                        @spannedPhotoItem.GetPropertyValue("heading")
+                    </div>
+                    <div class="wpb_text_column wpb_content_element">
+                        <div class="wpb_wrapper">
+                            <img src="@spannedPhotoItem.GetCropUrl("spannedPhotoItem", crop)" alt="@spannedPhotoItem.GetPropertyValue("heading")" class="align"/>
+                        </div>
+                        @Html.Raw(content)
+                    </div>
+                </section>
+            }
+        </div>
+    </div>
+}

@@ -1,0 +1,53 @@
+﻿@inherits Umbraco.Web.Mvc.UmbracoViewPage<IPublishedContent>
+@{
+    var documentType = string.Empty;
+}
+@foreach (IPublishedContent child in Model.Children)
+{
+    documentType = child.DocumentTypeAlias.ToLower();
+    if (documentType.Equals("text"))
+    {
+        Html.RenderPartial("_TextPartial", child);
+    }
+    else if (documentType.Equals("phototext"))
+    {
+        Html.RenderPartial("_PhotoTextPartial", child);
+    }
+    else if (documentType.Equals("video"))
+    {
+        Html.RenderPartial("_VideoPartial", child);
+    }
+    else if (documentType.Equals("youtubevideo"))
+    {
+        Html.RenderPartial("_YouTubeVideoPartial", child);
+    }
+    else if (documentType.Equals("collapsible"))
+    {
+        Html.RenderPartial("_AccordianPartial", child);
+    }
+    else if (documentType.Equals("photocomparisions"))
+    {
+        Html.RenderPartial("BeforeAndAfterPartial", child);
+    }
+    else if (documentType.Equals("testimonial"))
+    {
+        if (!(child.GetPropertyValue<bool>("banner")))
+        {
+            Html.RenderPartial("TestimonialPartial", child);
+        }
+    }
+    else if (child.DocumentTypeAlias.Equals("testimonials", StringComparison.CurrentCultureIgnoreCase))
+    {
+        if (child.Children.Where(c => c.IsVisible() && !(c.GetPropertyValue<bool>("banner"))).Count() > 0)
+        {
+            <section class="testimonials-section">
+                @if (child.HasValue("heading"))
+                {
+                    <div class="widget-title">@child.GetPropertyValue("heading") </div>
+                }
+
+                @Html.Partial("_ChildrenPartial", child)
+            </section>
+        }
+    }
+}
